@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Rumah di Balik Lampu Padam — MVP</title>
+<style>
+:root{color-scheme:dark;--ac:#b3262e;--fg:#d8e4f5;--pn:#121826;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:"Courier New",monospace;color:var(--fg);-webkit-user-select:none;user-select:none;touch-action:none}
+body{display:flex;align-items:center;justify-content:center}
+#G{position:relative;overflow:hidden;background:#000;--u:2px}
+canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+button{font-family:inherit}
+.btn{position:absolute;z-index:3;border-radius:50%;background:rgba(18,24,38,.55);border:2px solid rgba(160,190,230,.45);color:var(--fg);font-size:calc(var(--u)*5);padding:0}
+.btn:active{background:rgba(120,150,200,.5)}
+#bA{right:calc(var(--u)*8);bottom:calc(var(--u)*10);width:calc(var(--u)*28);height:calc(var(--u)*28)}
+#bN{right:calc(var(--u)*40);bottom:calc(var(--u)*6);width:calc(var(--u)*22);height:calc(var(--u)*22)}
+#bL{right:calc(var(--u)*14);bottom:calc(var(--u)*42);width:calc(var(--u)*22);height:calc(var(--u)*22)}
+#bP,#bJ{top:calc(var(--u)*4);width:calc(var(--u)*13);height:calc(var(--u)*13);font-size:calc(var(--u)*6)}
+#bP{right:calc(var(--u)*4)}#bJ{right:calc(var(--u)*20)}
+#jb,#jk{position:absolute;display:none;border-radius:50%;z-index:2;pointer-events:none}
+#jb{width:90px;height:90px;border:2px solid rgba(160,190,230,.35);background:rgba(18,24,38,.3)}
+#jk{width:40px;height:40px;background:rgba(160,190,230,.45)}
+#dlg{position:absolute;left:0;right:0;bottom:0;z-index:5;background:rgba(7,9,15,.94);border-top:2px solid #3a4a6b;padding:calc(var(--u)*4) calc(var(--u)*8);display:none;font-size:calc(var(--u)*6)}
+#nm{font-weight:bold;margin-bottom:calc(var(--u)*1.5)}#tx{line-height:1.35}
+#ch{display:flex;gap:calc(var(--u)*3);margin-top:calc(var(--u)*3);flex-wrap:wrap}
+#ch button{flex:1;min-width:30%;text-align:left}
+.ov{position:absolute;inset:0;z-index:9;background:rgba(5,7,12,.96);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:calc(var(--u)*6);gap:calc(var(--u)*3);overflow:auto}
+.ov h1{font-size:calc(var(--u)*10);margin:0;color:#e8c9d6}.ov h2{font-size:calc(var(--u)*7);margin:0;color:#e8c9d6}
+.ov p{margin:0;font-size:calc(var(--u)*5);line-height:1.5;color:#9aa8bd;max-width:88%}
+.ov button,#ch button{background:var(--pn);color:var(--fg);border:1px solid #3a4a6b;padding:calc(var(--u)*2.5) calc(var(--u)*8);font-size:calc(var(--u)*5.5)}
+.ov button:active,#ch button:active{border-color:var(--ac)}
+.row{display:flex;gap:calc(var(--u)*3);flex-wrap:wrap;justify-content:center}
+.ov label{font-size:calc(var(--u)*5);display:flex;gap:calc(var(--u)*3);align-items:center}
+#jl{text-align:left;width:92%;font-size:calc(var(--u)*4.6);line-height:1.4;max-height:calc(var(--u)*100);overflow:auto;touch-action:pan-y}
+#jl b{color:#e8c9d6}#jl div{margin-bottom:calc(var(--u)*2);border-left:2px solid #3a4a6b;padding-left:calc(var(--u)*3)}
+#kd{font-size:calc(var(--u)*12);letter-spacing:calc(var(--u)*2);color:#ffd877;min-height:calc(var(--u)*14)}
+#kg{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--u)*2)}#kg button{padding:calc(var(--u)*2) calc(var(--u)*5)}
+#rot{display:none;position:fixed;inset:0;z-index:99;background:#05070c;color:#e8c9d6;align-items:center;justify-content:center;text-align:center;font-size:18px;padding:24px}
+@media (orientation:portrait){#rot{display:flex}}
+</style></head><body>
+<div id="rot">↻ Putar ponsel ke mode landscape untuk bermain.</div>
+<div id="G"><canvas id="c"></canvas><div id="jb"></div><div id="jk"></div>
+<button class="btn" id="bL">🔦</button><button class="btn" id="bN">Napas</button><button class="btn" id="bA">Aksi</button><button class="btn" id="bJ">📖</button><button class="btn" id="bP">⏸</button>
+<div id="dlg"><div id="nm"></div><div id="tx"></div><div id="ch"></div></div>
+<div class="ov" id="title" style="display:flex"><h1>Rumah di Balik Lampu Padam</h1><p>Sera (17) pulang ke rumah masa kecilnya. Foto, kalender, dan ingatannya tidak cocok satu sama lain.</p><div class="row"><button id="nb">Mulai Baru</button><button id="cb2">Lanjutkan</button><button class="sb">Pengaturan</button></div><p>Geser di sisi kiri layar untuk berjalan. Aksi: periksa benda. 📖: jurnal. Napas: tahan sambil diam.</p></div>
+<div class="ov" id="set"><h2>Pengaturan</h2><label>Musik <input type="range" id="vm" min="0" max="100"></label><label>Efek &amp; suara <input type="range" id="vs" min="0" max="100"></label><button id="sx">Kembali</button></div>
+<div class="ov" id="ps"><h2>Jeda</h2><div class="row"><button id="pr">Lanjut</button><button id="pj">Jurnal</button><button class="sb">Pengaturan</button><button id="pv">Simpan</button><button id="pm">Menu utama</button></div></div>
+<div class="ov" id="jr"><h2>Jurnal &amp; Inventaris</h2><p id="inv"></p><div id="jl"></div><button id="jx">Tutup</button></div>
+<div class="ov" id="kp"><h2 id="kt">Kotak berkunci</h2><div id="kd"></div><div id="kg"></div><button id="kx">Batal</button></div>
+<div class="ov" id="end"><h1 id="et"></h1><p id="ex"></p><button onclick="location.reload()">Menu utama</button></div></div>
+<script>
+const W=480,H=216,C=document.getElementById('c'),X=C.getContext('2d'),G=document.getElementById('G');C.width=W;C.height=H;
+const LC=document.createElement('canvas');LC.width=W;LC.height=H;const L=LC.getContext('2d');
+const $=i=>document.getElementById(i),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+function fit(){const b=document.body,w=Math.min(b.clientWidth,b.clientHeight*20/9),h=w*9/20;G.style.width=w+'px';G.style.height=h+'px';G.style.setProperty('--u',h/180+'px')}
+addEventListener('resize',fit);fit();
+/* ---- audio ---- */
+let AC,mG,sG,vol={m:.6,s:.8};
+function setVol(){if(mG){mG.gain.value=vol.m;sG.gain.value=vol.s}}
+function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();mG=AC.createGain();sG=AC.createGain();mG.connect(AC.destination);sG.connect(AC.destination);setVol();
+[[55,.05],[82.5,.03]].forEach(([f,g])=>{const o=AC.createOscillator(),n=AC.createGain();o.frequency.value=f;n.gain.value=g;o.connect(n);n.connect(mG);o.start()})}
+if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',g=.05,to=0,dl=0,bus){try{const a=ac(),t=a.currentTime+dl,o=a.createOscillator(),n=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);n.gain.setValueAtTime(.0001,t);n.gain.linearRampToValueAtTime(g,t+.012);n.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(n);n.connect(bus||sG);o.start(t);o.stop(t+d+.05)}catch(e){}}
+const sfx={step:()=>tone(90,.08,'triangle',.06,55),get:()=>{tone(660,.25,'sine',.05);tone(880,.3,'sine',.05,0,.1)},door:()=>tone(140,.35,'sawtooth',.04,70),key:()=>tone(720,.05,'square',.03),err:()=>tone(110,.25,'sawtooth',.05),ok:()=>[523,659,784].forEach((f,i)=>tone(f,.4,'sine',.05,0,i*.12))};
+setInterval(()=>{if(!AC||mode==='title')return;const s=[220,261.6,329.6,246.9,196,174.6];tone(s[Math.floor(Math.random()*6)]*(Math.random()<.3?.5:1),3.5,'sine',.07,0,0,mG);if(calm<45&&Math.random()<.6)tone(233+Math.random()*4,3,'sine',.04,0,.5,mG)},4200);
+const V={sera:{n:'Sera',f:380,r:60,t:'sine',c:'#e8c9d6',g:.06,d:.13},nara:{n:'Nara',f:840,r:160,t:'square',c:'#ff8a8a',g:.05,d:.07},ayah:{n:'Suara Ayah',f:115,r:30,t:'sawtooth',c:'#9ec3ff',g:.05,d:.07},narr:{n:'',f:0,c:'#9aa8bd'}};
+function blip(w){const v=V[w];if(v.f)tone(v.f+Math.floor(Math.random()*4)*v.r/4,v.d,v.t,v.g)}
+/* ---- sprite Sera 40x64 ---- */
+const SP=document.createElement('canvas');SP.width=40;SP.height=64;const S=SP.getContext('2d');
+const P=(x,y,w,h,c)=>{S.fillStyle=c;S.fillRect(x,y,w,h)};
+function E(cx,cy,rx,ry,c){S.fillStyle=c;for(let y=-ry;y<=ry;y++){const w=Math.round(rx*Math.sqrt(1-y*y/(ry*ry)));S.fillRect(cx-w,cy+y,w*2,1)}}
+const HR='#15101c',HL='#2c2339',SK='#f2d8c6',SD='#d9b8a6',BL='#f3f1f7',BS='#c8c5d6',RB='#4a4658',SKT='#807d8e',SKD='#5e5b6c',SH='#161214',BG='#1c1719',GD='#d0a35a',ST='#5a3d2e',LS='#1a1620',FL='#f6f3ff',RIB='#ebe8f2';
+function sera(dir,w,ex,mo,bl){
+S.clearRect(0,0,40,64);const sw=Math.round(Math.sin(w)*1.4),st=Math.sin(w)>0;
+const skirt=()=>{for(let y=43;y<60;y++){const hw=Math.round(7+(y-43)*.55),o=Math.round(sw*(y-43)/16*1.6);P(20-hw+o,y,hw*2,1,SKT);for(let k=-3;k<=3;k++)P(20+Math.round(k*hw/3.6)+o,y,1,1,SKD)}P(12,43,16,2,'#6b6879')};
+const shoes=()=>{if(dir==='s'){const a=st?4:-4;P(15+a,60,6,3,SH);P(20-a,60,6,3,SH)}else{P(14,60-(st?1:0),6,3,SH);P(21,60-(st?0:1),6,3,SH)}};
+const eye=x=>{if(ex==='h'&&!bl){P(x-1,23,1,1,LS);P(x,22,2,1,LS);P(x+2,23,1,1,LS);return}if(bl){P(x-1,23,4,1,LS);return}
+if(ex==='sc'){P(x-1,20,4,6,'#f6f6fb');P(x,22,2,2,LS);P(x,22,1,1,'#fff');return}
+P(x-1,21,4,1,LS);P(x-1,22,4,3,'#8d93a8');P(x,22,2,3,'#2a2833');P(x,22,1,1,'#fff');if(ex==='sad')P(x-1,21,4,2,LS)};
+const mouth=(x,y)=>{const m='#b0707a';if(mo||ex==='sc')P(x,y,2,2,'#7a3a48');else if(ex==='h'){P(x-1,y,1,1,m);P(x,y+1,2,1,m);P(x+2,y,1,1,m)}else if(ex==='sad'){P(x,y,2,1,m);P(x-1,y+1,1,1,m);P(x+2,y+1,1,1,m)}else P(x,y,2,1,m)};
+const wave=(x0,n,y,c)=>{for(let i=0;i<n;i++)P(x0+i*3,y,3,3+(i%2)*2,c)};
+if(dir==='f'){
+E(20,20,13,16,HR);P(7,20,6,30,HR);P(27,20,6,30,HR);wave(7,3,49,HR);wave(25,3,49,HR);
+P(18,28,4,4,SD);P(13,31,14,13,BL);P(13,41,14,3,BS);P(9,33,5,12,BL);P(26,33,5,12,BL);P(9,43,5,2,BS);P(26,43,5,2,BS);P(10,45,3,2,SK);P(27,45,3,2,SK);
+skirt();P(17,31,6,2,RB);P(18,33,2,4,RB);P(21,33,2,3,RB);
+for(let i=0;i<14;i++)P(26-i,31+i,1,2,ST);P(4,43,9,8,BG);P(7,45,3,2,GD);
+E(20,21,8,9,SK);E(20,13,10,5,HR);P(11,14,5,6,HR);P(24,14,5,6,HR);P(17,15,2,3,HR);P(21,15,2,3,HR);P(14,12,2,6,HL);
+eye(16);eye(22);P(13,25,2,1,'#eaa0a8');P(26,25,2,1,'#eaa0a8');mouth(19,27);
+if(ex==='sad'||ex==='sc'){P(14,19,3,1,HR);P(16,18,1,1,HR);P(23,19,3,1,HR);P(23,18,1,1,HR)}
+
+P(10,11,5,5,FL);P(11,12,3,3,'#f0d27a');P(11,16,1,10,RIB);P(13,16,1,8,RIB);shoes()}
+else if(dir==='s'){
+E(17,20,12,16,HR);P(5,20,14,30,HR);wave(5,5,49,HR);
+P(19,28,4,4,SD);P(14,31,12,13,BL);P(14,41,12,3,BS);P(8,43,8,8,BG);skirt();P(23,31,4,2,RB);P(23,33,2,4,RB);
+P(16,33,6,12,BL);P(16,43,6,2,BS);P(17,45,4,2,SK);
+E(22,21,7,9,SK);P(29,23,1,1,SD);E(21,13,10,5,HR);P(26,14,4,6,HR);P(14,12,2,6,HL);
+eye(25);P(23,25,2,1,'#eaa0a8');mouth(26,27);P(16,11,5,5,FL);P(17,12,3,3,'#f0d27a');P(17,16,1,10,RIB);shoes()}
+else{
+P(9,33,5,12,BL);P(26,33,5,12,BL);P(13,31,14,13,BL);skirt();
+for(let i=0;i<14;i++)P(14+i,31+i,1,2,ST);P(26,43,9,8,BG);
+E(20,22,13,19,HR);P(8,22,24,29,HR);wave(8,8,50,HR);P(14,12,2,34,HL);P(24,16,2,30,HL);P(19,20,1,28,'#0d0a12');
+P(27,11,5,5,FL);P(28,12,3,3,'#f0d27a');P(28,16,1,9,RIB);shoes()}}
+/* ---- data area ---- */
+const R_=[
+{n:'Ruang Tamu',w:720,c:'#1a2236',f:'#2a1e16',a:.86,o:[{id:'dK',k:'door',x:50,t:[1,470],l:'Kamar Sera'},{id:'dD',k:'door',x:670,t:[2,90],l:'Dapur'},{id:'foto',k:'frame',x:250,l:'Foto keluarga'},{id:'kal',k:'cal',x:400,l:'Kalender'},{id:'sofa',k:'sofa',x:540,l:'Sofa'},{id:'lamp',k:'lamp',x:150,l:'Lampu',lt:1},{id:'win',k:'win',x:330,l:'Jendela'}]},
+{n:'Kamar Sera',w:560,c:'#1d2038',f:'#241a1c',a:.88,o:[{id:'dT',k:'door',x:520,t:[0,100],l:'Ruang Tamu'},{id:'bed',k:'bed',x:90,l:'Tempat tidur'},{id:'win',k:'win',x:200,l:'Jendela'},{id:'desk',k:'desk',x:300,l:'Meja belajar'},{id:'box',k:'box',x:330,l:'Kotak berkunci'},{id:'mir',k:'mir',x:430,l:'Cermin'}]},
+{n:'Dapur',w:640,c:'#1b2a2e',f:'#222018',a:.88,o:[{id:'dT',k:'door',x:40,t:[0,620],l:'Ruang Tamu'},{id:'fr',k:'fridge',x:130,l:'Kulkas'},{id:'clk',k:'clock',x:250,l:'Jam dinding'},{id:'tbl',k:'table',x:360,l:'Meja makan'},{id:'laci',k:'cab',x:470,l:'Laci terkunci'},{id:'dN',k:'door',x:600,t:[3,90],l:'Kamar Nara'}]},
+{n:'Kamar Nara',w:480,c:'#241f3a',f:'#1f1a22',a:.9,o:[{id:'dD',k:'door',x:40,t:[2,560],l:'Dapur'},{id:'rak',k:'shelf',x:170,l:'Rak mainan'},{id:'gam',k:'draw',x:290,l:'Gambar krayon'},{id:'cot',k:'bed',x:400,l:'Tempat tidur kecil'}]}];
+let mode='title',ri=0,R=R_[0],px=100,py=170,dir='f',fl=0,walk=0,lant=false,calm=100,score=0,fade=0,hm=0,T=0,toast='',tt=0,whis=null,F={},inv=[],jr=[],an={on:false,x:0};
+const K={kx:0,ky:0,jx:0,jy:0,b:0};
+function addJ(t,x){if(!jr.find(e=>e.t===t))jr.push({t,x})}
+function gain(n){if(!inv.includes(n))inv.push(n);sfx.get();toast='Mendapat: '+n;tt=3}
+/* ---- dialog ---- */
+let D=null;const dlg=$('dlg'),nm=$('nm'),tx=$('tx'),ch=$('ch');
+function say(lines,choice,done){D={l:lines,i:0,ch:choice,done,pos:0,full:false,tm:0};mode='dlg';dlg.style.display='block';show()}
+function show(){const Ln=D.l[D.i];nm.textContent=V[Ln.w].n;nm.style.color=V[Ln.w].c;tx.textContent='';ch.innerHTML='';D.pos=0;D.full=false;clearInterval(D.tm);
+D.tm=setInterval(()=>{D.pos++;tx.textContent=Ln.t.slice(0,D.pos);if(D.pos%2==0&&Ln.t[D.pos-1]!==' ')blip(Ln.w);if(D.pos>=Ln.t.length){clearInterval(D.tm);D.full=true;after()}},34)}
+function after(){if(!(D.ch&&D.i===D.l.length-1)||ch.innerHTML)return;D.ch.forEach(o=>{const b=document.createElement('button');b.textContent='▸ '+o.t;b.onclick=e=>{e.stopPropagation();pick(o)};ch.appendChild(b)})}
+function pick(o){score+=o.s;calm=cl(calm+(o.c||0),1,100);if(o.s>0)hm=3;const dn=D.done;clearInterval(D.tm);if(o.r)say(o.r,null,dn);else{D=null;fin(dn)}}
+function adv(){if(!D)return;if(!D.full){clearInterval(D.tm);tx.textContent=D.l[D.i].t;D.full=true;after();return}if(D.ch&&D.i===D.l.length-1)return;if(D.i<D.l.length-1){D.i++;show()}else{const dn=D.done;D=null;fin(dn)}}
+function fin(dn){dlg.style.display='none';mode='play';dn&&dn()}
+dlg.onclick=adv;
+/* ---- keypad ---- */
+let kb='',kl=0,kc='',kok=null;
+const kg=$('kg');['1','2','3','⌫','4','5','6','0','7','8','9','OK'].forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>{sfx.key();if(k==='⌫')kb=kb.slice(0,-1);else if(k==='OK'){if(kb===kc){$('kp').style.display='none';sfx.ok();mode='play';kok()}else{sfx.err();kb='';calm=cl(calm-8,1,100)}}else if(kb.length<kl)kb+=k;$('kd').textContent=kb.padEnd(kl,'•')};kg.appendChild(b)});
+function openKP(t,len,code,ok){kb='';kl=len;kc=code;kok=ok;$('kt').textContent=t;$('kd').textContent=''.padEnd(len,'•');$('kp').style.display='flex';mode='menu'}
+$('kx').onclick=()=>{$('kp').style.display='none';mode='play'};
+/* ---- interaksi ---- */
+const hasKey=()=>inv.includes('Kunci Kamar Nara');
+const U={
+foto(){F.foto?say([{w:'sera',t:'Bingkai kosong. Fotonya ada padaku.'}]):say([{w:'narr',t:'Foto keluarga: Ayah, Ibu, dan aku. Tiga orang tersenyum kaku.'},{w:'narr',t:'Di baliknya tertulis tangan: “Juli 2008 — kami bertiga.”'}],null,()=>{F.foto=1;gain('Foto Keluarga');addJ('Foto keluarga','Foto tiga orang. Di baliknya: “Juli 2008 — kami bertiga.”')})},
+kal(){F.p1?say([{w:'narr',t:'Kalender kini menunjukkan Juli 2008.'},{w:'sera',t:'Tadi bukan 2011? Atau aku yang salah lihat...'}],null,()=>addJ('Kalender berubah','Kalender di ruang tamu tadi bertuliskan 2011. Sekarang Juli 2008. Aku tidak tahu mana yang benar.')):say([{w:'narr',t:'Kalender tahun 2011. Tanggal 14 dilingkari, tapi bulannya tampak ditempel ulang.'},{w:'sera',t:'Fotonya 2008. Kenapa kalender ini 2011?'}],null,()=>addJ('Kalender 2011','Kalender menunjukkan 2011, padahal foto keluarga bertahun 2008. Tanggal 14 dilingkari. Seseorang mengubahnya dengan sengaja?'))},
+sofa(){say([{w:'narr',t:'Sofa berdebu. Di sandarannya ada cekungan kecil, seperti baru ditiduri anak kecil.'}])},
+lamp(){say([{w:'narr',t:F.p1?'Lampu berkedip pelan, seirama napas seseorang.':'Lampu lantai yang masih menyala. Siapa yang menyalakannya?'}])},
+win(){say([{w:'sera',t:'Di luar hanya gelap. Tapi pantulan kaca ini menunjukkan empat orang di ruangan...'},{w:'sera',t:'Aku pasti salah lihat.'}])},
+bed(){ri===3?U.cot():say([{w:'narr',t:'Tempat tidurku. Selimutnya terlipat rapi, padahal aku tak pernah merapikannya.'}])},
+desk(){say([{w:'narr',t:'Buku harian terbuka di halaman terakhir. Tulisan tangan gemetar:'},{w:'narr',t:'“Aku yang mengubah kalender itu. Tanggal yang benar adalah hari ke-14. Jangan biarkan Ayah membuangnya lagi.”'}],null,()=>addJ('Buku harian','“Aku yang mengubah kalender itu. Tanggal yang benar adalah hari ke-14. Jangan biarkan Ayah membuangnya lagi.” Tulisanku sendiri, tapi aku tak ingat menulisnya.'))},
+box(){if(F.p1)return say([{w:'sera',t:'Kotak itu kosong sekarang.'}]);if(!F.foto&&!jr.find(e=>e.t==='Buku harian'))return say([{w:'narr',t:'Kotak kayu dengan kunci angka enam digit: tanggal-bulan-tahun, dua digit masing-masing.'},{w:'sera',t:'Aku butuh petunjuk dulu.'}]);
+openKP('Masukkan tanggal (HHBBTT)',6,'140708',()=>{F.p1=1;inv.push('Foto Utuh');sfx.get();say([{w:'narr',t:'Kotak terbuka. Isinya bukan kunci, melainkan foto yang sama dengan foto keluarga.'},{w:'narr',t:'Tapi ada satu anak kecil di sampingku, menggenggam tanganku.'},{w:'sera',t:'Siapa kamu? Kenapa aku memegang tanganmu?'}],null,()=>{addJ('Foto utuh','Foto yang sama, tapi ada anak kecil keempat di sampingku. Tidak ada seorang pun di rumah ini yang pernah menyebutnya.');toast='Mendapat: Foto Utuh';tt=3;calm=cl(calm-15,1,100);save()})})},
+mir(){say([{w:'narr',t:calm<50?'Di pantulan, ada anak kecil berdiri di belakang Sera. Saat ia menoleh, tak ada siapa pun.':'Cermin berdebu. Pantulanmu tampak terlambat sepersekian detik.'}])},
+fr(){say([{w:'narr',t:'Kulkas kosong. Di pintunya tertempel empat magnet huruf: N, A, R, A. Tapi kamu tak ingat siapa yang menyusunnya.'}],null,()=>addJ('Magnet kulkas','Empat magnet huruf menyusun “NARA”. Nama siapa?'))},
+clk(){say([{w:'narr',t:F.p2?'Jam kini berdetak lagi. Tik. Tik. Tik.':'Jam dinding berhenti tepat pukul 03:20.'}],null,()=>{if(!F.p2)addJ('Jam dapur','Jam dinding berhenti pukul 03:20.')})},
+tbl(){say([{w:'narr',t:'Catatan dengan tulisan Ibu:'},{w:'narr',t:'“Dia selalu menangis pukul tiga lewat dua puluh. Aku bangun, tapi tak ada siapa pun.”'}],null,()=>addJ('Catatan Ibu','“Dia selalu menangis pukul tiga lewat dua puluh. Aku bangun, tapi tak ada siapa pun.”'))},
+laci(){if(F.p2)return say([{w:'sera',t:'Laci sudah terbuka.'}]);if(!jr.find(e=>e.t==='Jam dapur'))return say([{w:'narr',t:'Laci dengan kunci angka empat digit.'}]);
+openKP('Kode laci (4 digit)',4,'0320',()=>{F.p2=1;gain('Kunci Kamar Nara');addJ('Kunci berpita biru','Kunci kecil dengan pita biru. Pita yang sama kulihat di foto, terikat di pergelangan anak keempat.');save()})},
+dN(){hasKey()?go(R.o.find(o=>o.id==='dN')):say([{w:'sera',t:'Terkunci. Dari baliknya terdengar suara pelan, seperti anak kecil bernyanyi.'}])},
+rak(){say([{w:'narr',t:'Mobil mainan kecil, berdebu. Kecuali satu: bersih mengilap, seperti baru dipegang.'}],null,()=>addJ('Rak mainan','Semua mainan berdebu, kecuali satu mobil kecil. Seseorang baru memainkannya.'))},
+gam(){say([{w:'narr',t:'Gambar krayon: empat orang bergandengan. Di bawahnya tulisan anak-anak:'},{w:'narr',t:'“Kak Sera jangan pergi.”'}],null,()=>addJ('Gambar krayon','Empat orang bergandengan. “Kak Sera jangan pergi.” Aku punya adik.'))},
+cot(){if(!inv.includes('Foto Utuh'))return say([{w:'narr',t:'Tempat tidur kecil. Seseorang baru saja bangun dari sini.'}]);
+say([{w:'narr',t:'Sera meletakkan foto itu di atas bantal kecil. Udara menjadi hangat dan dingin sekaligus.'},{w:'nara',t:'Kak Sera... kamu pulang.'},{w:'sera',t:'Aku tidak ingat punya adik.'},{w:'nara',t:'Kakak yang minta semua orang melupakanku. Supaya tidak sakit.'}],
+[{t:'“Aku ingat kamu, Nara.”',s:2,c:10,r:[{w:'nara',t:'Terima kasih... sudah mau mengingat.'}]},{t:'“Kamu cuma bayanganku.”',s:-2,c:-25,r:[{w:'nara',t:'Mungkin. Tapi bayangan juga bisa menangis.'}]},{t:'(Diam)',s:-1,c:-8,r:[{w:'nara',t:'Diam juga jawaban, ya.'}]}],
+()=>say([{w:'narr',t:'Foto itu masih di tangan Sera. Anak kecil di dalamnya tampak menunggu.'}],[{t:'Menyimpannya di samping bantal',s:1,c:8},{t:'Merobek foto itu',s:-2},{t:'Meninggalkannya lalu pergi',s:0}],ending))}};
+function ending(){mode='end';const e=score>=3?['Ending: Penerimaan','Pagi masuk lewat jendela. Di meja makan ada empat piring, atau mungkin Sera sendiri yang menatanya. Apa pun itu, kali ini ia tidak berpaling. Dukanya punya nama, dan nama itu: Nara.']:score<=-3?['Ending: Terjebak','Pintu terbuka ke ruang tamu yang sama. Kalender menunjukkan 2011. Lalu 2008. Lalu 2011. Dari kamar kecil, nyanyian itu tak pernah berhenti.']:['Ending: Penyangkalan','Sera menutup pintu dan kembali ke kamarnya. Besok ia akan lupa lagi. Foto tiga orang itu kembali ke dinding, rapi dan lengkap, seperti seharusnya.'];
+$('et').textContent=e[0];$('ex').textContent=e[1];$('end').style.display='flex';localStorage&&(()=>{try{localStorage.removeItem('rlp3')}catch(e){}})()}
+function go(o){fade=1;sfx.door();setRoom(o.t[0],o.t[1],165)}
+function setRoom(i,x,y){ri=i;R=R_[i];px=x;py=y||165;an.on=false;toast=R.n;tt=2.5;save()}
+function near(){let b=null,bd=24;if(py>164)return null;R.o.forEach(o=>{const d=Math.abs(px-o.x);if(d<bd){bd=d;b=o}});return b}
+function act(){if(mode==='dlg')return adv();if(mode!=='play')return;const o=near();if(!o)return;if(o.t&&o.id!=='dN')return go(o);U[o.id]&&U[o.id]()}
+/* ---- simpan ---- */
+function save(){try{localStorage.setItem('rlp3',JSON.stringify({ri,px,py,F,inv,jr,score,calm,vol}))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem('rlp3'))}catch(e){return null}}
+function start(sv){ac();try{document.documentElement.requestFullscreen().then(()=>screen.orientation.lock('landscape')).catch(()=>{})}catch(e){}
+$('title').style.display='none';F={};inv=[];jr=[];score=0;calm=100;
+if(sv){F=sv.F;inv=sv.inv;jr=sv.jr;score=sv.score;calm=sv.calm;setRoom(sv.ri,sv.px,sv.py);mode='play'}
+else{setRoom(0,100,170);addJ('Pulang','Rumah ini terasa salah. Ada sesuatu yang kulupakan, dan rumah ini tahu.');say([{w:'narr',t:'Malam hari. Rumah masa kecil Sera. Lampu padam lebih awal dari yang ia ingat.'},{w:'sera',t:'Ayah belum pulang. Semuanya sama... kan?'},{w:'narr',t:'Periksa benda di sekitar dengan Aksi. Jurnal (📖) menyimpan petunjukmu.'}])}}
+$('nb').onclick=()=>start();$('cb2').onclick=()=>{const s=load();s?start(s):start()};
+const sv0=load();if(sv0&&sv0.vol){vol=sv0.vol}if(!sv0)$('cb2').style.display='none';
+let back='title';document.querySelectorAll('.sb').forEach(b=>b.onclick=()=>{back=mode==='menu'&&$('ps').style.display==='flex'?'ps':'title';$(back).style.display='none';$('set').style.display='flex'});
+$('vm').value=vol.m*100;$('vs').value=vol.s*100;$('vm').oninput=e=>{vol.m=e.target.value/100;setVol()};$('vs').oninput=e=>{vol.s=e.target.value/100;setVol();blip('sera')};
+$('sx').onclick=()=>{$('set').style.display='none';$(back).style.display='flex';if(back==='ps')save()};
+function openJ(from){$('inv').textContent='Inventaris: '+(inv.length?inv.join(' · '):'(kosong)');$('jl').innerHTML=jr.map(e=>'<div><b>'+e.t+'</b><br>'+e.x+'</div>').join('');$('jr').style.display='flex';$('jr').dataset.f=from;mode='menu'}
+$('bJ').onclick=()=>{if(mode==='play')openJ('')};$('pj').onclick=()=>{$('ps').style.display='none';openJ('ps')};
+$('jx').onclick=()=>{$('jr').style.display='none';if($('jr').dataset.f==='ps')$('ps').style.display='flex';else mode='play'};
+$('bP').onclick=()=>{if(mode==='play'){mode='menu';$('ps').style.display='flex'}};$('pr').onclick=()=>{$('ps').style.display='none';mode='play'};
+$('pv').onclick=()=>{save();$('pv').textContent='Tersimpan ✓';setTimeout(()=>$('pv').textContent='Simpan',1200)};$('pm').onclick=()=>{save();location.reload()};
+/* ---- update & gambar ---- */
+function upd(dt){let vx=K.kx||K.jx,vy=K.ky||K.jy;const m=Math.hypot(vx,vy);if(m>1){vx/=m;vy/=m}const mv=m>.15,br=K.b&&!mv;
+if(mv){if(Math.abs(vy)>Math.abs(vx)*1.1)dir=vy<0?'b':'f';else{dir='s';fl=vx<0?1:0}}
+const sp=calm<35?.75:1,pw=Math.sin(walk);px+=vx*66*sp*dt;py+=vy*40*sp*dt;walk+=mv?dt*9:0;py=cl(py,144,204);px=cl(px,14,R.w-14);
+if(mv&&pw*Math.sin(walk)<0)sfx.step();
+const lamp=R.o.find(o=>o.lt&&Math.abs(o.x-px)<80);
+if(br){calm+=20*dt}else if(!lamp)calm-=(lant?.25:.9)*dt;
+if(F.p1&&calm<60&&!an.on&&Math.random()<dt*.15){an.on=true;an.x=cl(px+(Math.random()<.5?-1:1)*(130+Math.random()*80),20,R.w-20)}
+if(an.on&&Math.abs(px-an.x)<45){an.on=false;sfx.err();calm-=6}
+if(calm<40&&!whis&&Math.random()<dt*.5){whis={t:['kamu yang melupakan','dia masih di sini','jangan lihat foto itu','kenapa pergi'][Math.floor(Math.random()*4)],u:2,x:40+Math.random()*300,y:40+Math.random()*70};tone(100,.4,'sawtooth',.03)}
+if(whis){whis.u-=dt;if(whis.u<=0)whis=null}
+calm=cl(calm,0,100);
+if(calm<=.1){fade=1;px=cl(px-120,14,R.w-14);calm=50;say([{w:'narr',t:'Sera menarik napas dalam-dalam. Dunia perlahan tenang. Ia melangkah lagi.'}])}}
+function dobj(o,cam){const x=o.x-cam;if(x<-60||x>W+60)return;const k=o.k;
+if(k==='door'){X.fillStyle='#1c120c';X.fillRect(x-20,70,40,70);X.fillStyle='#34200f';X.fillRect(x-17,73,34,67);X.fillStyle='#d8b25a';X.fillRect(x+10,106,3,3);if(o.id==='dN'&&!hasKey()){X.fillStyle='#b3262e';X.fillRect(x-1,98,3,3)}}
+else if(k==='frame'){X.fillStyle='#4b3a28';X.fillRect(x-13,60,26,32);X.fillStyle=F.foto?'#16161d':'#8a97a8';X.fillRect(x-10,63,20,26);if(!F.foto){X.fillStyle='#c9a98f';[-6,0,6].forEach(d=>{X.fillRect(x+d-2,70,4,4);X.fillRect(x+d-2,75,4,9)})}}
+else if(k==='cal'){X.fillStyle='#d9d4c4';X.fillRect(x-10,58,20,26);X.fillStyle='#8a2b30';X.fillRect(x-10,58,20,6);X.fillStyle='#222';X.font='7px monospace';X.fillText(F.p1?'JUL':'MAR',x-8,63);X.fillText(F.p1?'2008':(calm<35?'2O11':'2011'),x-8,76)}
+else if(k==='sofa'){X.fillStyle='#3a2a3d';X.fillRect(x-36,108,72,32);X.fillStyle='#2c202f';X.fillRect(x-40,114,10,26);X.fillRect(x+30,114,10,26);X.fillRect(x-36,104,72,8)}
+else if(k==='lamp'){X.fillStyle='#2a2018';X.fillRect(x-1,92,3,48);X.fillStyle='#d8b25a';X.beginPath();X.moveTo(x-10,92);X.lineTo(x+10,92);X.lineTo(x+6,78);X.lineTo(x-6,78);X.fill()}
+else if(k==='win'){X.fillStyle='rgba(150,190,255,.07)';X.beginPath();X.moveTo(x-14,96);X.lineTo(x+14,96);X.lineTo(x+60,200);X.lineTo(x-40,200);X.fill();X.fillStyle='#1f2a44';X.fillRect(x-18,34,36,62);const g=X.createLinearGradient(0,36,0,94);g.addColorStop(0,'#86a8d8');g.addColorStop(1,'#3d5a8a');X.fillStyle=g;X.fillRect(x-15,37,30,56);X.fillStyle='#1f2a44';X.fillRect(x-1,37,2,56);X.fillRect(x-15,64,30,2)}
+else if(k==='bed'){const s=o.id==='cot'?.7:1;X.fillStyle='#2c2018';X.fillRect(x-36*s,108,72*s,32);X.fillStyle='#4a5a7a';X.fillRect(x-34*s,114,68*s,18);X.fillStyle='#e8e8f0';X.fillRect(x-32*s,110,22*s,8)}
+else if(k==='desk'){X.fillStyle='#3b2615';X.fillRect(x-36,118,72,6);X.fillRect(x-34,124,4,16);X.fillRect(x+30,124,4,16);X.fillStyle='#8a2b30';X.fillRect(x-24,114,14,4)}
+else if(k==='box'){X.fillStyle='#5a3d20';X.fillRect(x-8,108,16,10);X.fillStyle=F.p1?'#111':'#d8b25a';X.fillRect(x-1,111,3,3)}
+else if(k==='mir'){const g=X.createLinearGradient(x-14,0,x+14,0);g.addColorStop(0,'#6a7f9c');g.addColorStop(1,'#9fb4cf');X.fillStyle='#3a2a1c';X.fillRect(x-16,50,32,52);X.fillStyle=g;X.fillRect(x-13,53,26,46);if(calm<50){X.fillStyle='#050608';X.fillRect(x+2,76,6,22);X.fillRect(x+1,68,8,8);X.fillStyle='#b3262e';X.fillRect(x+2,71,2,2);X.fillRect(x+6,71,2,2)}}
+else if(k==='clock'){X.fillStyle='#d9d4c4';X.beginPath();X.arc(x,70,11,0,7);X.fill();X.strokeStyle='#222';X.lineWidth=1;X.beginPath();X.moveTo(x,70);const a=F.p2?T*2:-Math.PI/2+Math.PI*2*(3/12+20/720)+Math.PI*0;X.lineTo(x+Math.cos(F.p2?T*3:.3)*8,70+Math.sin(F.p2?T*3:.3)*8);X.moveTo(x,70);X.lineTo(x+Math.cos(F.p2?T:-1.37)*6,70+Math.sin(F.p2?T:-1.37)*6);X.stroke()}
+else if(k==='table'){X.fillStyle='#3b2d1c';X.fillRect(x-30,120,60,5);X.fillRect(x-28,125,4,15);X.fillRect(x+24,125,4,15);X.fillStyle='#e8e0c8';X.fillRect(x-8,117,14,3)}
+else if(k==='cab'){X.fillStyle='#3a2a1c';X.fillRect(x-26,96,52,44);X.fillStyle='#2a1c10';X.fillRect(x-22,100,44,16);X.fillRect(x-22,120,44,16);X.fillStyle='#d8b25a';X.fillRect(x-2,106,4,2);X.fillRect(x-2,126,4,2)}
+else if(k==='fridge'){X.fillStyle='#8a97a4';X.fillRect(x-18,80,36,60);X.fillStyle='#6a7580';X.fillRect(x-18,108,36,2);X.fillStyle='#d8e4f5';[0,6,12,18].forEach((d,i)=>X.fillRect(x-12+d,92,4,5))}
+else if(k==='shelf'){X.fillStyle='#3a2a1c';X.fillRect(x-34,100,68,4);X.fillRect(x-34,124,68,4);['#b3262e','#5f86b8','#d8b25a','#7a9a6a'].forEach((c,i)=>{X.fillStyle=c;X.fillRect(x-28+i*15,92,10,8);X.fillRect(x-28+i*15,116,10,8)})}
+else if(k==='draw'){X.fillStyle='#e8e0c8';X.fillRect(x-17,60,34,26);X.fillStyle='#b3262e';const n=F.p1?4:3;for(let i=0;i<n;i++){const px_=x-12+i*8;X.fillRect(px_,68,3,3);X.fillRect(px_,72,3,8)}}}
+function draw(){T+=.016;const cam=cl(px-W/2,0,R.w-W),pan=1-calm/100,sk=calm<50?(50-calm)/50*2.5:0;
+X.save();X.imageSmoothingEnabled=false;if(sk)X.translate((Math.random()-.5)*sk,(Math.random()-.5)*sk);
+let g=X.createLinearGradient(0,0,0,140);g.addColorStop(0,'#080c16');g.addColorStop(1,R.c);X.fillStyle=g;X.fillRect(-4,-4,W+8,144);
+for(let x=-(cam%20);x<W;x+=20){X.fillStyle='rgba(120,150,210,.05)';X.fillRect(x,0,1,140)}
+X.fillStyle='rgba(0,0,0,.25)';X.fillRect(0,100,W,40);X.fillStyle='#0e0a07';X.fillRect(0,137,W,4);
+g=X.createLinearGradient(0,141,0,H);g.addColorStop(0,R.f);g.addColorStop(1,'#080605');X.fillStyle=g;X.fillRect(0,141,W,H-141);
+X.fillStyle='rgba(0,0,0,.35)';for(let y=146,s=5;y<H;y+=s,s+=1.3)X.fillRect(0,y,W,1);
+R.o.forEach(o=>dobj(o,cam));
+if(an.on){const x=an.x-cam;X.fillStyle='#030406';X.fillRect(x-4,150,8,22);X.beginPath();X.arc(x,148,5,0,7);X.fill();X.fillStyle='#b3262e';X.fillRect(x-3,147,2,2);X.fillRect(x+1,147,2,2)}
+const sx=px-cam,sc=.72+(py-144)/60*.2,ht=64*sc,wd=40*sc;
+const ex=calm<28?'sc':calm<55?'sad':hm>0?'h':'n';hm=Math.max(0,hm-.016);
+const mo=D&&D.l[D.i].w==='sera'&&!D.full&&(D.pos%4<2),bl=(T%4)<.12;
+sera(dir,walk,ex,mo,bl);
+X.fillStyle='rgba(0,0,0,.45)';X.beginPath();X.ellipse(sx,py,12*sc,3*sc,0,0,7);X.fill();
+X.save();X.translate(sx,py-Math.abs(Math.sin(walk))*.8);if(fl&&dir==='s')X.scale(-1,1);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';X.drawImage(SP,-wd/2,-ht+1,wd,ht);X.restore();
+/* cahaya */
+const fl_=(calm<50||F.p1)&&Math.random()<.04?.08:0;L.globalCompositeOperation='source-over';L.clearRect(0,0,W,H);L.fillStyle='rgba(2,3,10,'+(R.a+fl_)+')';L.fillRect(0,0,W,H);L.globalCompositeOperation='destination-out';
+const hole=(x,y,r,a)=>{const gr=L.createRadialGradient(x,y,r*.2,x,y,r);gr.addColorStop(0,'rgba(0,0,0,'+a+')');gr.addColorStop(1,'rgba(0,0,0,0)');L.fillStyle=gr;L.fillRect(x-r,y-r,r*2,r*2)};
+hole(sx,py-ht*.5,lant?135:62,1);R.o.forEach(o=>{if(o.lt)hole(o.x-cam,90,110,.9);if(o.k==='win')hole(o.x-cam,70,60,.45)});
+X.drawImage(LC,0,0);L.globalCompositeOperation='source-over';
+if(an.on){const x=an.x-cam;X.fillStyle='#b3262e';X.fillRect(x-3,147,2,2);X.fillRect(x+1,147,2,2)}
+X.fillStyle='#030406';if(ri===0||ri===2)[200,520].forEach(k=>{const x=k-cam*1.35;if(x<-20||x>W+20)return;X.fillRect(x,150,12,70);X.beginPath();X.arc(x+6,150,6,0,7);X.fill()});
+if(pan>.5){X.fillStyle='rgba(179,38,46,'+((pan-.5)*.35)+')';X.fillRect(0,0,W,H)}
+if(whis){X.fillStyle='rgba(179,38,46,.85)';X.font='11px Courier New';X.fillText(whis.t,whis.x,whis.y)}
+if(mode==='play'){const o=near();if(o){X.fillStyle='#d8e4f5';X.font='9px Courier New';const t=(o.t?'Masuk: ':'')+o.l;X.fillText(t,sx-t.length*2.6,py-ht-4)}}
+if(fade>0){X.fillStyle='rgba(0,0,0,'+fade+')';X.fillRect(0,0,W,H);fade-=.03}
+X.restore();
+X.fillStyle='rgba(0,0,0,.5)';X.fillRect(6,6,62,9);X.fillStyle='#7fb2e5';X.fillRect(8,8,58*calm/100,4);
+if(tt>0){tt-=.016;X.fillStyle='rgba(0,0,0,.6)';X.fillRect(W/2-90,14,180,14);X.fillStyle='#ffd877';X.font='9px Courier New';X.textAlign='center';X.fillText(toast,W/2,24);X.textAlign='left'}}
+let last=0,lp=0;function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;if(mode==='play')upd(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+/* ---- input ---- */
+const kd={};function kset(e,v){const k=e.key.toLowerCase();if(k==='arrowleft'||k==='a')kd.l=v;if(k==='arrowright'||k==='d')kd.r=v;if(k==='arrowup'||k==='w')kd.u=v;if(k==='arrowdown'||k==='s')kd.d=v;if(k==='b')K.b=v;K.kx=(kd.r?1:0)-(kd.l?1:0);K.ky=(kd.d?1:0)-(kd.u?1:0)}
+addEventListener('keydown',e=>{kset(e,1);const k=e.key.toLowerCase();if(k==='e'||k==='enter'||k===' '){e.preventDefault();act()}if(k==='l'&&mode==='play')lant=!lant;if(k==='j'&&mode==='play')openJ('')});addEventListener('keyup',e=>kset(e,0));
+const jb=$('jb'),jk=$('jk');let jp=null,jo=null;
+G.addEventListener('pointerdown',e=>{if(e.target.closest('button,#dlg,.ov'))return;const r=G.getBoundingClientRect();if(e.clientX-r.left<r.width*.55&&jp===null){jp=e.pointerId;jo={x:e.clientX-r.left,y:e.clientY-r.top};jb.style.cssText='display:block;left:'+(jo.x-45)+'px;top:'+(jo.y-45)+'px';jk.style.cssText='display:block;left:'+(jo.x-20)+'px;top:'+(jo.y-20)+'px'}});
+G.addEventListener('pointermove',e=>{if(e.pointerId!==jp)return;const r=G.getBoundingClientRect();let dx=e.clientX-r.left-jo.x,dy=e.clientY-r.top-jo.y;const d=Math.hypot(dx,dy),mx=40;if(d>mx){dx*=mx/d;dy*=mx/d}K.jx=dx/mx;K.jy=dy/mx;jk.style.left=(jo.x+dx-20)+'px';jk.style.top=(jo.y+dy-20)+'px'});
+const jend=e=>{if(e.pointerId!==jp)return;jp=null;K.jx=K.jy=0;jb.style.display=jk.style.display='none'};G.addEventListener('pointerup',jend);G.addEventListener('pointercancel',jend);
+$('bA').onpointerdown=e=>{e.preventDefault();act()};$('bL').onpointerdown=e=>{e.preventDefault();if(mode==='play')lant=!lant};
+const bn=$('bN');bn.onpointerdown=e=>{e.preventDefault();K.b=1};['pointerup','pointerleave','pointercancel'].forEach(v=>bn.addEventListener(v,()=>K.b=0));
+document.addEventListener('contextmenu',e=>e.preventDefault());
+</script></body></html>
